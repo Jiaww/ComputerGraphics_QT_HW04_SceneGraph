@@ -11,7 +11,8 @@ SOURCES += \
     $$PWD/scene/cylinder.cpp \
     $$PWD/scene/sphere.cpp \
     $$PWD/la.cpp \
-    $$PWD/drawable.cpp
+    $$PWD/drawable.cpp \
+    $$PWD/scenegraph.cpp
 
 HEADERS += \
     $$PWD/la.h \
@@ -22,4 +23,5 @@ HEADERS += \
     $$PWD/utils.h \
     $$PWD/scene/cylinder.h \
     $$PWD/scene/sphere.h \
-    $$PWD/drawable.h
+    $$PWD/drawable.h \
+    $$PWD/scenegraph.h
