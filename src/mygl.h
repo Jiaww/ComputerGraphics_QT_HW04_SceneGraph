@@ -10,6 +10,47 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 
+//Node:
+class TranslateNode;
+class RotateNode;
+class ScaleNode;
+
+struct Geo{
+
+};
+
+class Node{
+public:
+    QString *name;
+    TranslateNode *Translate;
+    RotateNode *Rotate;
+    ScaleNode *Scale;
+    glm::mat4 *Transformation;
+    Drawable *Geometry;
+    std::vector<Node*> Children;
+    Node();
+    Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
+};
+
+class TranslateNode:public Node{
+    TranslateNode();
+    TranslateNode(float x, float y, float z);
+};
+
+class RotateNode:public Node{
+    RotateNode();
+    RotateNode(float angle, float x, float y, float z);
+
+};
+
+class ScaleNode:public Node{
+    ScaleNode();
+    ScaleNode(float x, float y, float z);
+};
+
+void Draw(Drawable *G, glm::mat4 T);
+void Traverse(Node N, glm::mat4 T);
+
 
 class MyGL
     : public GLWidget277

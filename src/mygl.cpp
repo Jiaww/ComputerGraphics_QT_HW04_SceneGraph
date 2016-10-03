@@ -4,6 +4,122 @@
 #include <iostream>
 #include <QApplication>
 #include <QKeyEvent>
+#include <math.h>
+
+Node::Node(){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+Node::Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
+    Translate = trans;
+    Rotate = rot;
+    Scale = scale;
+    *Transformation = (*trans->Transformation) * (*rot->Transformation) * (*scale->Transformation);
+    Geometry = nullptr;
+}
+
+TranslateNode::TranslateNode(){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+TranslateNode::TranslateNode(float x, float y, float z){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(x,y,z,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+RotateNode::RotateNode(){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+RotateNode::RotateNode(float angle, float x, float y, float z){
+    if(x == 1 && y == 0 && z == 0){
+        glm::vec4 a(1,0,0,0), b(0,cos(angle),sin(angle),0), c(0,-sin(angle),cos(angle),0), d(0,0,0,1);
+        glm::mat4 t(a,b,c,d);
+        *Transformation = t;
+        Translate = nullptr;
+        Rotate = nullptr;
+        Scale = nullptr;
+        Geometry = nullptr;
+    }
+    else if(x == 0 && y == 1 && z == 0){
+        glm::vec4 a(cos(angle),0,-sin(angle),0), b(0,1,0,0), c(sin(angle),0,cos(angle),0), d(0,0,0,1);
+        glm::mat4 t(a,b,c,d);
+        *Transformation = t;
+        Translate = nullptr;
+        Rotate = nullptr;
+        Scale = nullptr;
+        Geometry = nullptr;
+    }
+    else if(x ==0 && y == 0 && z == 1){
+        glm::vec4 a(cos(angle),sin(angle),0,0), b(-sin(angle),cos(angle),0,0), c(0,0,1,0), d(0,0,0,1);
+        glm::mat4 t(a,b,c,d);
+        *Transformation = t;
+        Translate = nullptr;
+        Rotate = nullptr;
+        Scale = nullptr;
+        Geometry = nullptr;
+    }
+}
+
+ScaleNode::ScaleNode(){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+ScaleNode::ScaleNode(float x, float y, float z){
+    glm::vec4 a(x,0,0,0), b(0,y,0,0), c(0,0,z,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    *Transformation = t;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+}
+
+
+
+void Draw(Drawable *G, glm::mat4 T){
+    //Draw!!
+    //shaderprogram::draw(*G);
+}
+
+void Traverse(Node N, glm::mat4 T){
+    T = T * *N.Transformation;
+    for(int i = 0; i < N.Children.size(); i++){
+        Traverse(N, T);
+    }
+    if(N.Geometry != nullptr){
+        Draw(N.Geometry, T);
+    }
+}
 
 
 MyGL::MyGL(QWidget *parent)
