@@ -6,7 +6,7 @@
 #include <shaderprogram.h>
 #include <scene/cylinder.h>
 #include <scene/sphere.h>
-
+#include <scene/cube.h>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 
@@ -29,27 +29,29 @@ public:
     Drawable *Geometry;
     std::vector<Node*> Children;
     Node();
-    Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
+    Node(std::vector<Node*>children, TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
 };
 
 class TranslateNode:public Node{
+public:
     TranslateNode();
     TranslateNode(float x, float y, float z);
 };
 
 class RotateNode:public Node{
+public:
     RotateNode();
     RotateNode(float angle, float x, float y, float z);
 
 };
 
 class ScaleNode:public Node{
+public:
     ScaleNode();
     ScaleNode(float x, float y, float z);
 };
 
-void Draw(Drawable *G, glm::mat4 T);
-void Traverse(Node N, glm::mat4 T);
+
 
 
 class MyGL
@@ -58,6 +60,7 @@ class MyGL
 private:
     Cylinder geom_cylinder;// The instance of a unit cylinder we can use to render any cylinder
     Sphere geom_sphere;// The instance of a unit sphere we can use to render any sphere
+    Cube geom_cube;
     ShaderProgram prog_lambert;// A shader program that uses lambertian reflection
     ShaderProgram prog_flat;// A shader program that uses "flat" reflection (no shadowing at all)
 
@@ -72,6 +75,8 @@ public:
     void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
+
+    void Traverse(Node N, glm::mat4 T, ShaderProgram p);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

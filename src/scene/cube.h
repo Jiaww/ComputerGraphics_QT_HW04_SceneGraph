@@ -1,5 +1,3 @@
-#pragma once
-
 #include "drawable.h"
 #include <la.h>
 
@@ -7,11 +5,9 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 
-class Cube:public Drawable
+class Cube : public Drawable
 {
-public:
 public:
     Cube(GLWidget277* context);
     virtual void create();
 };
-

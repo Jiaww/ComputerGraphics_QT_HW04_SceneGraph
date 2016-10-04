@@ -16,10 +16,13 @@ Node::Node(){
     Geometry = nullptr;
 }
 
-Node::Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
+Node::Node(std::vector<Node *> children, TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
     Translate = trans;
     Rotate = rot;
     Scale = scale;
+    for(int i = 0; i < (int)children.size(); i++){
+        Children.push_back(children[i]);
+    }
     *Transformation = (*trans->Transformation) * (*rot->Transformation) * (*scale->Transformation);
     Geometry = nullptr;
 }
@@ -106,25 +109,9 @@ ScaleNode::ScaleNode(float x, float y, float z){
 
 
 
-void Draw(Drawable *G, glm::mat4 T){
-    //Draw!!
-    //shaderprogram::draw(*G);
-}
-
-void Traverse(Node N, glm::mat4 T){
-    T = T * *N.Transformation;
-    for(int i = 0; i < N.Children.size(); i++){
-        Traverse(N, T);
-    }
-    if(N.Geometry != nullptr){
-        Draw(N.Geometry, T);
-    }
-}
-
-
 MyGL::MyGL(QWidget *parent)
     : GLWidget277(parent),
-      geom_cylinder(this), geom_sphere(this), //TODO: When you make your Cube instance, add it to this init list
+      geom_cylinder(this), geom_sphere(this),geom_cube(this), //TODO: When you make your Cube instance, add it to this init list
       prog_lambert(this), prog_flat(this)
 {
 }
@@ -135,6 +122,7 @@ MyGL::~MyGL()
     glDeleteVertexArrays(1, &vao);
     geom_cylinder.destroy();
     geom_sphere.destroy();
+    geom_cube.destroy();
 }
 
 void MyGL::initializeGL()
@@ -165,6 +153,8 @@ void MyGL::initializeGL()
     geom_cylinder.create();
 
     geom_sphere.create();
+
+    geom_cube.create();
 
     // Create and set up the diffuse shader
     prog_lambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -225,15 +215,22 @@ void MyGL::paintGL()
 
     //Now do the same to render the cylinder
     //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
+//    model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
+//    prog_lambert.setModelMatrix(model);
+//    prog_lambert.draw(geom_cylinder);
+
+    //Now do the same to render the cube
+    //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
     model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
     prog_lambert.setModelMatrix(model);
-    prog_lambert.draw(geom_cylinder);
+    prog_lambert.draw(geom_cube);
 #endif
 
 
     //^^^ CLEAR THIS CODE WHEN YOU IMPLEMENT SCENE GRAPH TRAVERSAL ^^^/////////////////
 
     //Here is a good spot to call your scene graph traversal function.
+//    Traverse(N,T,prog_lambert);
 }
 
 
@@ -242,5 +239,17 @@ void MyGL::keyPressEvent(QKeyEvent *e)
     // http://doc.qt.io/qt-5/qt.html#Key-enum
     if (e->key() == Qt::Key_Escape) {
         QApplication::quit();
+    }
+}
+
+
+void MyGL::Traverse(Node N, glm::mat4 T, ShaderProgram p){
+    T = T * (*N.Transformation);
+    for(int i = 0; i < N.Children.size(); i++){
+        Traverse(N, T, p);
+    }
+    if(N.Geometry != nullptr){
+        p.setModelMatrix(T);
+        p.draw(*N.Geometry);
     }
 }
