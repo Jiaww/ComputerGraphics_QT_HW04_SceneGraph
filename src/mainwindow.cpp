@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->mygl->setFocus();
+
+    emit sig_SendNode(new Node("ROOT")); // Emit a signal to create an initial node in the tree widget
 }
 
 MainWindow::~MainWindow()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>1257</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,12 +17,63 @@
    <widget class="MyGL" name="mygl">
     <property name="geometry">
      <rect>
-      <x>11</x>
-      <y>11</y>
+      <x>630</x>
+      <y>10</y>
       <width>618</width>
       <height>432</height>
      </rect>
     </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>340</y>
+      <width>80</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>AddChild</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>310</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>290</y>
+      <width>39</width>
+      <height>11</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Name</string>
+    </property>
+   </widget>
+   <widget class="MyTreeWidget" name="treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>351</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true">1</string>
+     </property>
+    </column>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -30,8 +81,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
-     <height>26</height>
+     <width>1257</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -54,11 +105,90 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
+   <class>MyTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>mytreewidget.h</header>
+   <slots>
+    <slot>slot_addNode(QTreeWidgetItem*)</slot>
+    <slot>slot_storeNewNodeName(QString)</slot>
+    <slot>slot_storeSelectedNode(QTreeWidgetItem*)</slot>
+    <slot>slot_addChildToSelected()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
    <class>MyGL</class>
    <extends>QOpenGLWidget</extends>
    <header>mygl.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>sig_SendNode(QTreeWidgetItem*)</signal>
+   <receiver>treeWidget</receiver>
+   <slot>slot_addNode(QTreeWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>4</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>43</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>treeWidget</receiver>
+   <slot>slot_storeNewNodeName(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>332</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>338</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>treeWidget</receiver>
+   <slot>slot_addChildToSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>466</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeWidget</sender>
+   <signal>itemClicked(QTreeWidgetItem*,int)</signal>
+   <receiver>treeWidget</receiver>
+   <slot>slot_storeSelectedNode(QTreeWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>353</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>357</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <signal>sig_SendNode(QTreeWidgetItem*)</signal>
+ </slots>
 </ui>

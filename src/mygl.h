@@ -9,6 +9,8 @@
 #include <scene/cube.h>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
+#include <QTreeWidgetItem>
+#include <QString>
 
 //Node:
 class TranslateNode;
@@ -16,7 +18,7 @@ class RotateNode;
 class ScaleNode;
 
 
-class Node{
+class Node : public QTreeWidgetItem{
 public:
     QString *name;
     TranslateNode *Translate;
@@ -26,7 +28,10 @@ public:
     Drawable *Geometry;
     std::vector<Node*> Children;
     Node();
+    Node(QString name);
     Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
+
+    virtual void addChild(QTreeWidgetItem*);
 };
 
 class TranslateNode:public Node{

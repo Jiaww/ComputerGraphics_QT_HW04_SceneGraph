@@ -18,6 +18,19 @@ Node::Node(){
     //Children.clear();
 }
 
+Node::Node(QString name){
+    glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
+    glm::mat4 t(a,b,c,d);
+    Transformation = t;
+    this->name = &name;
+    Translate = nullptr;
+    Rotate = nullptr;
+    Scale = nullptr;
+    Geometry = nullptr;
+    name = nullptr;
+    //Children.clear();
+}
+
 Node::Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
     Translate = trans;
     Rotate = rot;
@@ -25,6 +38,12 @@ Node::Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
     Transformation = (trans->Transformation) * (rot->Transformation) * (scale->Transformation);
     Geometry = nullptr;
    }
+
+void Node::addChild(QTreeWidgetItem *c)
+{
+    QTreeWidgetItem::addChild(c);
+    Children.push_back((Node*)c);
+}
 
 TranslateNode::TranslateNode(){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
