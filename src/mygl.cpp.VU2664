@@ -283,23 +283,12 @@ void MyGL::paintGL()
     Traverse(Limp11,T,prog_lambert);
     //Fist Part
     //Fist0
-    TranslateNode TFist01(3.8,0.5,0);
+    TranslateNode TFist01(4.2,0.5,0);
     RotateNode RFist01(90, 0, 0, 1);
-    ScaleNode SFist01(1,1,1);
+    ScaleNode SFist01(1,2,1);
     Node Fist01(&TFist01,&RFist01,&SFist01);
-    RotateNode RFist02(-45,0,1,0);
-    Fist01.Transformation =RFist02.Transformation *  Fist01.Transformation;
     Fist01.Geometry = &geom_sphere;
     Traverse(Fist01,T,prog_lambert);
-    //Fist1
-    TranslateNode TFist11(-3.8,0.5,0);
-    RotateNode RFist11(90, 0, 0, 1);
-    ScaleNode SFist11(1,1,1);
-    Node Fist11(&TFist11,&RFist11,&SFist11);
-    RotateNode RFist12(-45,0,1,0);
-    Fist11.Transformation =RFist12.Transformation *  Fist11.Transformation;
-    Fist11.Geometry = &geom_sphere;
-    Traverse(Fist11,T,prog_lambert);
 }
 
 

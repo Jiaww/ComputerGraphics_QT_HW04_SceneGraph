@@ -15,9 +15,6 @@ class TranslateNode;
 class RotateNode;
 class ScaleNode;
 
-struct Geo{
-
-};
 
 class Node{
 public:
@@ -25,11 +22,11 @@ public:
     TranslateNode *Translate;
     RotateNode *Rotate;
     ScaleNode *Scale;
-    glm::mat4 *Transformation;
+    glm::mat4 Transformation;
     Drawable *Geometry;
     std::vector<Node*> Children;
     Node();
-    Node(std::vector<Node*>children, TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
+    Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
 };
 
 class TranslateNode:public Node{
@@ -50,7 +47,6 @@ public:
     ScaleNode();
     ScaleNode(float x, float y, float z);
 };
-
 
 
 
