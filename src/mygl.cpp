@@ -176,6 +176,15 @@ MyGL::~MyGL()
     geom_cube.destroy();
 }
 
+// Rotate!!!!!Limb!!!!
+void Rotate_Limb(Node *N, float scaler, float angle, int x, int y, int z){
+    //Scale in y;
+    scaler = scaler /2;
+    TranslateNode *Trans1 = new TranslateNode(0, scaler, 0), *Trans2 = new TranslateNode(0, -scaler, 0);
+    RotateNode *R = new RotateNode(angle, x, y, z);
+    N->Transformation = N->Transformation * Trans1->Transformation * R->Transformation * Trans2->Transformation;
+}
+
 void MyGL::initializeGL()
 {
     // Create an OpenGL context using Qt's QOpenGLFunctions_3_2_Core class
@@ -221,21 +230,24 @@ void MyGL::initializeGL()
     Head->Geometry = &geom_sphere;
     //Limp Part
     //Limp0
-    TranslateNode *TLimp01 = new TranslateNode(0,-1,0);
-    RotateNode *RLimp01 = new RotateNode(0, 0, 1, 0);
-    ScaleNode *SLimp01 = new ScaleNode(1,1,0.5f);
-    Node *Limp01 = new Node("Limp01",TLimp01,RLimp01,SLimp01);
-    Limp01->Geometry = &geom_cylinder;
+    TranslateNode *TLimb01 = new TranslateNode(0,-1,0);
+    RotateNode *RLimb01 = new RotateNode(0, 0, 1, 0);
+    ScaleNode *SLimb01 = new ScaleNode(1,1,0.5f);
+    Node *Limb01 = new Node("Limb01",TLimb01,RLimb01,SLimb01);
+    Limb01->Geometry = &geom_cylinder;
     //Limp1
-    TranslateNode *TLimp11 = new TranslateNode(0,-2,0);
-    RotateNode *RLimp11 = new RotateNode(0, 0, 0, 1);
-    ScaleNode *SLimp11 = new ScaleNode(1,1,0.5f);
-    Node *Limp11 = new Node("Limp11",TLimp11,RLimp11,SLimp11);
-    Limp11->Geometry = &geom_cylinder;
+    TranslateNode *TLimb11 = new TranslateNode(0,-1,0);
+    RotateNode *RLimb11 = new RotateNode(0, 0, 0, 1);
+    ScaleNode *SLimb11 = new ScaleNode(1,1,1);
+    Node *Limb11 = new Node("Limb11",TLimb11,RLimb11,SLimb11);
+    Limb11->Geometry = &geom_cylinder;
+    glm::mat4 r;
+    Rotate_Limb(Limb01, 1, 30, 1, 0, 0);
+    Rotate_Limb(Limb11, 1, 30, 1, 0, 0);
     Root->addChild(Body);
     Body->addChild(Head);
-    Body->addChild(Limp01);
-    Body->addChild(Limp11);
+    Body->addChild(Limb01);
+    Limb01->addChild(Limb11);
 
     // Create and set up the diffuse shader
     prog_lambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -255,6 +267,8 @@ void MyGL::initializeGL()
     emit sig_RootNode(this->Root);
 
 }
+
+
 
 void MyGL::resizeGL(int w, int h)
 {
