@@ -21,7 +21,6 @@ class ScaleNode;
 class Node : public QTreeWidgetItem{
 public:
     QString name;
-    bool selected =false;
     TranslateNode *Translate;
     RotateNode *Rotate;
     ScaleNode *Scale;
@@ -71,7 +70,7 @@ private:
     GLuint vao; // A handle for our vertex array object. This will store the VBOs created in our geometry classes.
                 // Don't worry too much about this. Just know it is necessary in order to render geometry.
     Node *Root;
-
+    Node *selected;
 public:
     explicit MyGL(QWidget *parent = 0);
     ~MyGL();
@@ -80,7 +79,7 @@ public:
     void resizeGL(int w, int h);
     void paintGL();
 
-    void Traverse(Node *N, glm::mat4 T, ShaderProgram p);
+    void Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_color);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

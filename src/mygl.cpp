@@ -10,7 +10,6 @@ Node::Node(){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
-    selected = false;
     Translate = nullptr;
     Rotate = nullptr;
     Scale = nullptr;
@@ -23,7 +22,6 @@ Node::Node(const QString &name){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
-    selected = false;
     this->name = name;
     Translate = nullptr;
     Rotate = nullptr;
@@ -34,7 +32,6 @@ Node::Node(const QString &name){
 }
 
 Node::Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
-    selected = false;
     Translate = trans;
     Rotate = rot;
     Scale = scale;
@@ -144,18 +141,17 @@ ScaleNode::ScaleNode(float x, float y, float z){
 
 
 
-void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p){
+void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_color){
     T = T * N->Transformation;
     for(int i = 0; i < N->Children.size(); i++){
-        Traverse(N->Children[i], T, p);
+        Traverse(N->Children[i], T, p, origin_color);
     }
     if(N->Geometry != nullptr){
-        if(N->selected){
-            p.setGeometryColor(glm::vec4(0,0,0,1));
-            N->selected = false;
+        if(N == selected){
+            p.setGeometryColor(glm::vec4(1,1,1,1));
         }
         else{
-            //p.setGeometryColor(glm::vec4(0,1,0,1));
+            p.setGeometryColor(origin_color);
         }
         p.setModelMatrix(T);
         p.draw(*(N->Geometry));
@@ -166,7 +162,7 @@ void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p){
 MyGL::MyGL(QWidget *parent)
     : GLWidget277(parent),
       geom_cylinder(this), geom_sphere(this),geom_cube(this),//TODO: When you make your Cube instance, add it to this init list
-      prog_lambert(this), prog_flat(this)
+      prog_lambert(this), prog_flat(this),selected(nullptr)
 {
 //    emit sig_RootNode(Root);
 }
@@ -315,7 +311,7 @@ void MyGL::paintGL()
 
     //Here is a good spot to call your scene graph traversal function.
 
-    Traverse(Root,Root->Transformation,prog_lambert);
+    Traverse(Root,Root->Transformation,prog_lambert, glm::vec4(0,1,0,1));
 }
 
 
@@ -329,6 +325,5 @@ void MyGL::keyPressEvent(QKeyEvent *e)
 
 void MyGL::slot_ChosenPart(QTreeWidgetItem *n)
 {
-    Node *N = (Node*)n;
-    N->selected = true;
+    selected = (Node*) n;
 }

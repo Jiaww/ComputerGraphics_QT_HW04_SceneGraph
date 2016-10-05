@@ -25,10 +25,12 @@ out vec4 out_Col; // This is the final output color that you will see on your
 void main()
 {
 
-    out_Col = normalize(abs(fs_Nor)); // Color each fragment using the interpolated surface normal's XYZ as RGB
+    //out_Col = normalize(abs(fs_Nor)); // Color each fragment using the interpolated surface normal's XYZ as RGB
                                       // You must add code to this main function that sets out_Col to the
                                       // Lambertian-shaded color of the geometry instead.
                                       // If your rendered images remain unchanged after altering out_Col,
                                       // try cleaning and rebuilding your project, then running qmake
                                       // (under the Build taskbar)
+    float scalar = dot(abs(normalize(fs_Nor)), abs(normalize(fs_LightVec)));
+    out_Col = scalar * u_Color;
 }

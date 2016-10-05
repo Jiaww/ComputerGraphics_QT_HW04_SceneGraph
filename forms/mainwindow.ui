@@ -27,7 +27,7 @@
    <widget class="MyTreeWidget" name="treeWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>19</x>
       <y>10</y>
       <width>351</width>
       <height>381</height>
