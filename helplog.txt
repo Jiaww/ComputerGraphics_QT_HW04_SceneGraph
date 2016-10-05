@@ -1,0 +1,9 @@
+Help log:
+10/01/2016: Confuse about the meaning of virtual function.
+Solved, find the meaning and the explanation in Wiki and CSDN.
+10/02/2016: Finished the Conceptual Question
+10/03/2016: Finished 4.1, 4.2
+References: PPT of SceneGraph
+10/04/2016: Finished 4.4, 4.5, 4.6
+References: PPT and the demo code on the Syllabus
+10/05/2016: Finished 5.1 5.3

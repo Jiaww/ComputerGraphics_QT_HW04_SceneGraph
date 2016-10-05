@@ -32,6 +32,7 @@ public:
     //Animation:
     glm::mat4 Animation;
     glm::mat4 Animation_Rotation = glm::mat4(1);
+
     Node();
     Node(const QString &name);
     Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
@@ -85,6 +86,7 @@ private:
     TranslateNode *AniTrans;
     RotateNode *AniRot;
     ScaleNode *AniSca;
+//The Node which
     Node *AniNode;
 
 public:

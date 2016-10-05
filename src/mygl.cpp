@@ -154,11 +154,13 @@ ScaleNode::ScaleNode(float x, float y, float z){
 
 
 void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_color){
+    //the last 2 items are for Animation part
     T = T * N->Transformation * N->Animation * N->Animation_Rotation;
     for(int i = 0; i < N->Children.size(); i++){
         Traverse(N->Children[i], T, p, origin_color);
     }
     if(N->Geometry != nullptr){
+        //If being selected, change the color to white
         if(N == selected){
             p.setGeometryColor(glm::vec4(1,1,1,1));
         }
