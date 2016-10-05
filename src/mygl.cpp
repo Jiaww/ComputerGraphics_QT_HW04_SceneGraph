@@ -10,6 +10,7 @@ Node::Node(){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
+    selected = false;
     Translate = nullptr;
     Rotate = nullptr;
     Scale = nullptr;
@@ -18,25 +19,28 @@ Node::Node(){
     //Children.clear();
 }
 
-Node::Node(QString name){
+Node::Node(const QString &name){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
-    this->name = &name;
+    selected = false;
+    this->name = name;
     Translate = nullptr;
     Rotate = nullptr;
     Scale = nullptr;
     Geometry = nullptr;
-    name = nullptr;
     //Children.clear();
+    setText(0, name);
 }
 
-Node::Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
+Node::Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
+    selected = false;
     Translate = trans;
     Rotate = rot;
     Scale = scale;
     Transformation = (trans->Transformation) * (rot->Transformation) * (scale->Transformation);
     Geometry = nullptr;
+    setText(0, name);
    }
 
 void Node::addChild(QTreeWidgetItem *c)
@@ -110,6 +114,9 @@ RotateNode::RotateNode(float angle, float x, float y, float z){
         Geometry = nullptr;
         name = nullptr;
     }
+    else{
+        Transformation = glm::mat4(1);
+    }
 }
 
 ScaleNode::ScaleNode(){
@@ -137,23 +144,31 @@ ScaleNode::ScaleNode(float x, float y, float z){
 
 
 
-void MyGL::Traverse(Node N, glm::mat4 T, ShaderProgram p){
-    T = T * N.Transformation;
-    for(int i = 0; i < N.Children.size(); i++){
-        Traverse(N, T, p);
+void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p){
+    T = T * N->Transformation;
+    for(int i = 0; i < N->Children.size(); i++){
+        Traverse(N->Children[i], T, p);
     }
-    if(N.Geometry != nullptr){
+    if(N->Geometry != nullptr){
+        if(N->selected){
+            p.setGeometryColor(glm::vec4(0,0,0,1));
+            N->selected = false;
+        }
+        else{
+            //p.setGeometryColor(glm::vec4(0,1,0,1));
+        }
         p.setModelMatrix(T);
-        p.draw(*N.Geometry);
+        p.draw(*(N->Geometry));
     }
 }
 
 
 MyGL::MyGL(QWidget *parent)
     : GLWidget277(parent),
-      geom_cylinder(this), geom_sphere(this),geom_cube(this), //TODO: When you make your Cube instance, add it to this init list
+      geom_cylinder(this), geom_sphere(this),geom_cube(this),//TODO: When you make your Cube instance, add it to this init list
       prog_lambert(this), prog_flat(this)
 {
+//    emit sig_RootNode(Root);
 }
 
 MyGL::~MyGL()
@@ -194,6 +209,37 @@ void MyGL::initializeGL()
     geom_cube.create();
 
     geom_sphere.create();
+    Root = new Node("Root");
+    //Character:
+    //Body Part
+    TranslateNode *TBody = new TranslateNode(0,0,0);
+    RotateNode *RBody = new RotateNode(45, 0, 1, 0);
+    ScaleNode *SBody = new ScaleNode(1,1,2);
+    Node *Body = new Node("Body",TBody, RBody, SBody);
+    Body->Geometry = &geom_cube;
+    //Head Part
+    TranslateNode *THead = new TranslateNode(0,1,0);
+    RotateNode *RHead = new RotateNode(0, 0, 1, 0);
+    ScaleNode *SHead = new ScaleNode(1,1,0.5f);
+    Node *Head = new Node("Head",THead,RHead,SHead);
+    Head->Geometry = &geom_sphere;
+    //Limp Part
+    //Limp0
+    TranslateNode *TLimp01 = new TranslateNode(0,-1,0);
+    RotateNode *RLimp01 = new RotateNode(0, 0, 1, 0);
+    ScaleNode *SLimp01 = new ScaleNode(1,1,0.5f);
+    Node *Limp01 = new Node("Limp01",TLimp01,RLimp01,SLimp01);
+    Limp01->Geometry = &geom_cylinder;
+    //Limp1
+    TranslateNode *TLimp11 = new TranslateNode(0,-2,0);
+    RotateNode *RLimp11 = new RotateNode(0, 0, 0, 1);
+    ScaleNode *SLimp11 = new ScaleNode(1,1,0.5f);
+    Node *Limp11 = new Node("Limp11",TLimp11,RLimp11,SLimp11);
+    Limp11->Geometry = &geom_cylinder;
+    Root->addChild(Body);
+    Body->addChild(Head);
+    Body->addChild(Limp01);
+    Body->addChild(Limp11);
 
     // Create and set up the diffuse shader
     prog_lambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -209,6 +255,9 @@ void MyGL::initializeGL()
     // using multiple VAOs, we can just bind one once.
 //    vao.bind();
     glBindVertexArray(vao);
+
+    emit sig_RootNode(this->Root);
+
 }
 
 void MyGL::resizeGL(int w, int h)
@@ -265,60 +314,8 @@ void MyGL::paintGL()
     //^^^ CLEAR THIS CODE WHEN YOU IMPLEMENT SCENE GRAPH TRAVERSAL ^^^/////////////////
 
     //Here is a good spot to call your scene graph traversal function.
-    //Character:
-    glm::mat4 T(1);
-    //Body Part
-    TranslateNode TBody(0,-4,0);
-    RotateNode RBody(90, 0, 1, 0);
-    ScaleNode SBody(2,4,2);
-    Node Body(&TBody,&RBody,&SBody);
-    Body.Geometry = &geom_cube;
-    Traverse(Body,T,prog_lambert);
-    //Head Part
-    TranslateNode THead(0,2,0);
-    RotateNode RHead(0, 0, 1, 0);
-    ScaleNode SHead(2,2,2);
-    Node Head(&THead,&RHead,&SHead);
-    Head.Geometry = &geom_sphere;
-    Traverse(Head,T,prog_lambert);
-    //Limp Part
-    //Limp0
-    TranslateNode TLimp01(2.2,0.5,0);
-    RotateNode RLimp01(90, 0, 0, 1);
-    ScaleNode SLimp01(1,2,1);
-    Node Limp01(&TLimp01,&RLimp01,&SLimp01);
-    RotateNode RLimp02(-45,0,1,0);
-    Limp01.Transformation = RLimp02.Transformation * Limp01.Transformation;
-    Limp01.Geometry = &geom_cylinder;
-    Traverse(Limp01,T,prog_lambert);
-    //Limp1
-    TranslateNode TLimp11(-2.2,0.5,0);
-    RotateNode RLimp11(90, 0, 0, 1);
-    ScaleNode SLimp11(1,2,1);
-    Node Limp11(&TLimp11,&RLimp11,&SLimp11);
-    RotateNode RLimp12(-45,0,1,0);
-    Limp11.Transformation =RLimp12.Transformation *  Limp11.Transformation;
-    Limp11.Geometry = &geom_cylinder;
-    Traverse(Limp11,T,prog_lambert);
-    //Fist Part
-    //Fist0
-    TranslateNode TFist01(3.8,0.5,0);
-    RotateNode RFist01(90, 0, 0, 1);
-    ScaleNode SFist01(1,1,1);
-    Node Fist01(&TFist01,&RFist01,&SFist01);
-    RotateNode RFist02(-45,0,1,0);
-    Fist01.Transformation =RFist02.Transformation *  Fist01.Transformation;
-    Fist01.Geometry = &geom_sphere;
-    Traverse(Fist01,T,prog_lambert);
-    //Fist1
-    TranslateNode TFist11(-3.8,0.5,0);
-    RotateNode RFist11(90, 0, 0, 1);
-    ScaleNode SFist11(1,1,1);
-    Node Fist11(&TFist11,&RFist11,&SFist11);
-    RotateNode RFist12(-45,0,1,0);
-    Fist11.Transformation =RFist12.Transformation *  Fist11.Transformation;
-    Fist11.Geometry = &geom_sphere;
-    Traverse(Fist11,T,prog_lambert);
+
+    Traverse(Root,Root->Transformation,prog_lambert);
 }
 
 
@@ -328,4 +325,10 @@ void MyGL::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_Escape) {
         QApplication::quit();
     }
+}
+
+void MyGL::slot_ChosenPart(QTreeWidgetItem *n)
+{
+    Node *N = (Node*)n;
+    N->selected = true;
 }

@@ -24,42 +24,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>340</y>
-      <width>80</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>AddChild</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>310</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>290</y>
-      <width>39</width>
-      <height>11</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Name</string>
-    </property>
-   </widget>
    <widget class="MyTreeWidget" name="treeWidget">
     <property name="geometry">
      <rect>
@@ -111,79 +75,52 @@
    <slots>
     <slot>slot_addNode(QTreeWidgetItem*)</slot>
     <slot>slot_storeNewNodeName(QString)</slot>
-    <slot>slot_storeSelectedNode(QTreeWidgetItem*)</slot>
+    <slot>slot_ChosenPart(QTreeWidgetItem*)</slot>
     <slot>slot_addChildToSelected()</slot>
+    <slot>slot_ReturnRootNode(QTreeWidgetItem*)</slot>
    </slots>
   </customwidget>
   <customwidget>
    <class>MyGL</class>
    <extends>QOpenGLWidget</extends>
    <header>mygl.h</header>
+   <slots>
+    <signal>sig_RootNode(QTreeWidgetItem*)</signal>
+    <slot>slot_ChosenPart(QTreeWidgetItem*)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>MainWindow</sender>
-   <signal>sig_SendNode(QTreeWidgetItem*)</signal>
+   <sender>mygl</sender>
+   <signal>sig_RootNode(QTreeWidgetItem*)</signal>
    <receiver>treeWidget</receiver>
-   <slot>slot_addNode(QTreeWidgetItem*)</slot>
+   <slot>slot_ReturnRootNode(QTreeWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>4</x>
-     <y>99</y>
+     <x>689</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
-     <x>43</x>
-     <y>98</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lineEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>treeWidget</receiver>
-   <slot>slot_storeNewNodeName(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>458</x>
-     <y>332</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>187</x>
-     <y>338</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>treeWidget</receiver>
-   <slot>slot_addChildToSelected()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>466</x>
-     <y>366</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>371</y>
+     <x>338</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>treeWidget</sender>
    <signal>itemClicked(QTreeWidgetItem*,int)</signal>
-   <receiver>treeWidget</receiver>
-   <slot>slot_storeSelectedNode(QTreeWidgetItem*)</slot>
+   <receiver>mygl</receiver>
+   <slot>slot_ChosenPart(QTreeWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>353</x>
-     <y>164</y>
+     <x>344</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>357</x>
-     <y>220</y>
+     <x>729</x>
+     <y>183</y>
     </hint>
    </hints>
   </connection>

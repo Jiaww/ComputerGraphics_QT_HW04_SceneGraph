@@ -11,37 +11,37 @@ Cube::Cube(GLWidget277 *context) : Drawable(context)
 
 void createCubeVertexPositions(glm::vec4 (&cube_vert_pos)[CUBE_VERT_COUNT]){
     //top surface 0~3
-    glm::vec4 v0(0,0,1.0f,1), v1(1.0f,0,1.0f,1), v2(1.0f,1.0f,1.0f,1), v3(0,1.0f,1.0f,1);
+    glm::vec4 v0(-0.5f,-0.5f,0.5f,1), v1(0.5f,-0.5f,0.5f,1), v2(0.5f,0.5f,0.5f,1), v3(-0.5f,0.5f,0.5f,1);
     cube_vert_pos[0] = v0;
     cube_vert_pos[1] = v1;
     cube_vert_pos[2] = v2;
     cube_vert_pos[3] = v3;
     //bottom surface 4~7
-    glm::vec4 v4(0,0,0,1), v5(1.0f,0,0,1), v6(1.0f,1.0f,0,1), v7(0,1.0f,0,1);
+    glm::vec4 v4(-0.5f,-0.5f,-0.5f,1), v5(0.5f,-0.5f,-0.5f,1), v6(0.5f,0.5f,-0.5f,1), v7(-0.5f,0.5f,-0.5f,1);
     cube_vert_pos[4] = v4;
     cube_vert_pos[5] = v5;
     cube_vert_pos[6] = v6;
     cube_vert_pos[7] = v7;
     //front surface 8~11
-    glm::vec4 v8(0,0,0,1), v9(1.0f,0,0,1), v10(1.0f,0,1.0f,1), v11(0,0,1.0f,1);
+    glm::vec4 v8(-0.5f,-0.5f,-0.5f,1), v9(0.5f,-0.5f,-0.5f,1), v10(0.5f,-0.5f,0.5f,1), v11(-0.5f,-0.5f,0.5f,1);
     cube_vert_pos[8] = v8;
     cube_vert_pos[9] = v9;
     cube_vert_pos[10] = v10;
     cube_vert_pos[11] = v11;
     //back surface 12~15
-    glm::vec4 v12(0,1.0f,0,1), v13(1.0f,1.0f,0,1), v14(1.0f,1.0f,1.0f,1), v15(0,1.0f,1.0f,1);
+    glm::vec4 v12(-0.5f,0.5f,-0.5f,1), v13(0.5f,0.5f,-0.5f,1), v14(0.5f,0.5f,0.5f,1), v15(-0.5f,0.5f,0.5f,1);
     cube_vert_pos[12] = v12;
     cube_vert_pos[13] = v13;
     cube_vert_pos[14] = v14;
     cube_vert_pos[15] = v15;
     //left surface 16~19
-    glm::vec4 v16(0,0,0,1), v17(0,0,1.0f,1), v18(0,1.0f,1.0f,1), v19(0,1.0f,0,1);
+    glm::vec4 v16(-0.5f,-0.5f,-0.5f,1), v17(-0.5f,-0.5f,0.5f,1), v18(-0.5f,0.5f,0.5f,1), v19(-0.5f,0.5f,-0.5f,1);
     cube_vert_pos[16] = v16;
     cube_vert_pos[17] = v17;
     cube_vert_pos[18] = v18;
     cube_vert_pos[19] = v19;
     //right surface 20~23
-    glm::vec4 v20(1.0f,0,0,1), v21(1.0f,0,1.0f,1), v22(1.0f,1.0f,1.0f,1), v23(1.0f,1.0f,0,1);
+    glm::vec4 v20(0.5f,-0.5f,-0.5f,1), v21(0.5f,-0.5f,0.5f,1), v22(0.5f,0.5f,0.5f,1), v23(0.5f,0.5f,-0.5f,1);
     cube_vert_pos[20] = v20;
     cube_vert_pos[21] = v21;
     cube_vert_pos[22] = v22;

@@ -14,7 +14,6 @@ class MyTreeWidget : public QTreeWidget
 
 private:
     QString newNodeName;
-    Node* selected;
 public:
     MyTreeWidget(QWidget* p);
 public slots:       // Slots are callable just like regular functions, but they can also be
@@ -24,20 +23,8 @@ public slots:       // Slots are callable just like regular functions, but they 
                     // For organizational purposes, I like to prefix all my slot names with slot_.
 
 
-    void slot_addNode(QTreeWidgetItem*); // Stores the input node as a "top level item" in the tree.
-                                         // In other words, stores it as a root node.
+    void slot_ReturnRootNode(QTreeWidgetItem*n);
 
-    void slot_storeNewNodeName(QString); // Connected to the signal emitted by the text edit box
-                                         // in the GUI whenever the text in the box changes.
-                                         // Stores the new next in the newNodeName member variable.
-
-    void slot_storeSelectedNode(QTreeWidgetItem*); // Connected to the signal emitted by this QTreeWidget
-                                                   // whenever an item in the widget is clicked. Stores the
-                                                   // pointer to the clicked Node in the "selected" member variable
-
-    void slot_addChildToSelected(); // Connected to the signal emitted by the push button in the GUI.
-                                    // Adds a new Node (with a name taken from newNodeName) as a child to the
-                                    // currently selected node.
 };
 
 #endif // MYTREEWIDGET_H

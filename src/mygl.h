@@ -20,7 +20,8 @@ class ScaleNode;
 
 class Node : public QTreeWidgetItem{
 public:
-    QString *name;
+    QString name;
+    bool selected =false;
     TranslateNode *Translate;
     RotateNode *Rotate;
     ScaleNode *Scale;
@@ -28,8 +29,8 @@ public:
     Drawable *Geometry;
     std::vector<Node*> Children;
     Node();
-    Node(QString name);
-    Node(TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
+    Node(const QString &name);
+    Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
 
     virtual void addChild(QTreeWidgetItem*);
 };
@@ -58,6 +59,8 @@ public:
 class MyGL
     : public GLWidget277
 {
+    Q_OBJECT
+
 private:
     Cylinder geom_cylinder;// The instance of a unit cylinder we can use to render any cylinder
     Sphere geom_sphere;// The instance of a unit sphere we can use to render any sphere
@@ -67,7 +70,7 @@ private:
 
     GLuint vao; // A handle for our vertex array object. This will store the VBOs created in our geometry classes.
                 // Don't worry too much about this. Just know it is necessary in order to render geometry.
-
+    Node *Root;
 
 public:
     explicit MyGL(QWidget *parent = 0);
@@ -77,10 +80,15 @@ public:
     void resizeGL(int w, int h);
     void paintGL();
 
-    void Traverse(Node N, glm::mat4 T, ShaderProgram p);
+    void Traverse(Node *N, glm::mat4 T, ShaderProgram p);
 
 protected:
     void keyPressEvent(QKeyEvent *e);
+signals:
+    void sig_RootNode(QTreeWidgetItem*);
+public slots:
+    void slot_ChosenPart(QTreeWidgetItem*);
+
 };
 
 
