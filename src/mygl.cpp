@@ -5,11 +5,13 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <math.h>
+#include <QTimer>
 
 Node::Node(){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
+    Animation = t;
     Translate = nullptr;
     Rotate = nullptr;
     Scale = nullptr;
@@ -22,6 +24,7 @@ Node::Node(const QString &name){
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
+    Animation = t;
     this->name = name;
     Translate = nullptr;
     Rotate = nullptr;
@@ -32,6 +35,7 @@ Node::Node(const QString &name){
 }
 
 Node::Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale){
+    Animation = glm::mat4(1);
     Translate = trans;
     Rotate = rot;
     Scale = scale;
@@ -47,6 +51,7 @@ void Node::addChild(QTreeWidgetItem *c)
 }
 
 TranslateNode::TranslateNode(){
+    Animation = glm::mat4(1);
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
@@ -58,6 +63,7 @@ TranslateNode::TranslateNode(){
 }
 
 TranslateNode::TranslateNode(float x, float y, float z){
+    Animation = glm::mat4(1);
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(x,y,z,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
@@ -69,8 +75,10 @@ TranslateNode::TranslateNode(float x, float y, float z){
 }
 
 RotateNode::RotateNode(){
+    Animation = glm::mat4(1);
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
+    angle = 0;
     Transformation = t;
     Translate = nullptr;
     Rotate = nullptr;
@@ -80,6 +88,8 @@ RotateNode::RotateNode(){
 }
 
 RotateNode::RotateNode(float angle, float x, float y, float z){
+    Animation = glm::mat4(1);
+    this->angle = angle;
     float rad = angle/180*3.1415926;
     if(x == 1 && y == 0 && z == 0){
         glm::vec4 a(1,0,0,0), b(0,cos(rad),sin(rad),0), c(0,-sin(rad),cos(rad),0), d(0,0,0,1);
@@ -117,6 +127,7 @@ RotateNode::RotateNode(float angle, float x, float y, float z){
 }
 
 ScaleNode::ScaleNode(){
+    Animation = glm::mat4(1);
     glm::vec4 a(1,0,0,0), b(0,1,0,0), c(0,0,1,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
@@ -128,6 +139,7 @@ ScaleNode::ScaleNode(){
 }
 
 ScaleNode::ScaleNode(float x, float y, float z){
+    Animation = glm::mat4(1);
     glm::vec4 a(x,0,0,0), b(0,y,0,0), c(0,0,z,0), d(0,0,0,1);
     glm::mat4 t(a,b,c,d);
     Transformation = t;
@@ -142,7 +154,7 @@ ScaleNode::ScaleNode(float x, float y, float z){
 
 
 void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_color){
-    T = T * N->Transformation;
+    T = T * N->Transformation * N->Animation * N->Animation_Rotation;
     for(int i = 0; i < N->Children.size(); i++){
         Traverse(N->Children[i], T, p, origin_color);
     }
@@ -161,7 +173,7 @@ void MyGL::Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_colo
 
 MyGL::MyGL(QWidget *parent)
     : GLWidget277(parent),
-      geom_cylinder(this), geom_sphere(this),geom_cube(this),//TODO: When you make your Cube instance, add it to this init list
+      geom_cylinder(this), geom_sphere(this),geom_cube(this),geom_cone(this),geom_pipe(this),//TODO: When you make your Cube instance, add it to this init list
       prog_lambert(this), prog_flat(this),selected(nullptr)
 {
 //    emit sig_RootNode(Root);
@@ -174,6 +186,8 @@ MyGL::~MyGL()
     geom_cylinder.destroy();
     geom_sphere.destroy();
     geom_cube.destroy();
+    geom_cone.destroy();
+    geom_pipe.destroy();
 }
 
 // Rotate!!!!!Limb!!!!
@@ -212,8 +226,10 @@ void MyGL::initializeGL()
     //Create the instances of Cylinder and Sphere.
     geom_cylinder.create();
     geom_cube.create();
-
+    geom_cone.create();
     geom_sphere.create();
+    geom_pipe.create();
+
     Root = new Node("Root");
     //Character:
     //Body Part
@@ -228,17 +244,17 @@ void MyGL::initializeGL()
     ScaleNode *SHead = new ScaleNode(1,1,0.5f);
     Node *Head = new Node("Head",THead,RHead,SHead);
     Head->Geometry = &geom_sphere;
-    //Limp Part
-    //Limp0
+    //Limb Part
+    //Limb01
     TranslateNode *TLimb01 = new TranslateNode(0,-1,0);
     RotateNode *RLimb01 = new RotateNode(0, 0, 1, 0);
     ScaleNode *SLimb01 = new ScaleNode(1,1,0.5f);
     Node *Limb01 = new Node("Limb01",TLimb01,RLimb01,SLimb01);
     Limb01->Geometry = &geom_cylinder;
-    //Limp1
+    //Limb11
     TranslateNode *TLimb11 = new TranslateNode(0,-1,0);
     RotateNode *RLimb11 = new RotateNode(0, 0, 0, 1);
-    ScaleNode *SLimb11 = new ScaleNode(1,1,1);
+    ScaleNode *SLimb11 = new ScaleNode(0.5f,1,0.5f);
     Node *Limb11 = new Node("Limb11",TLimb11,RLimb11,SLimb11);
     Limb11->Geometry = &geom_cylinder;
     glm::mat4 r;
@@ -264,6 +280,11 @@ void MyGL::initializeGL()
 //    vao.bind();
     glBindVertexArray(vao);
 
+//Animation:
+    TranslateNode *T = new TranslateNode(1,1,1);
+    RotateNode *R = new RotateNode(30,0,0,1);
+    ScaleNode *S = new ScaleNode(2,2,2);
+    setAnimation(Body,T,R,S);
     emit sig_RootNode(this->Root);
 
 }
@@ -307,16 +328,19 @@ void MyGL::paintGL()
     //implemented row-major matrices.
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::scale(glm::mat4(1.0f), glm::vec3(3,3,3));
     //Send the geometry's transformation matrix to the shader
+    RotateNode *RR= new RotateNode(90, 0 , 1 ,0);
+    TranslateNode *TT = new TranslateNode(-0.3,-0.3,0);
+    model = model * RR->Transformation * TT->Transformation;
     prog_lambert.setModelMatrix(model);
     //Draw the example sphere using our lambert shader
-    //prog_lambert.draw(geom_sphere);
+    prog_lambert.draw(geom_cone);
 
     //Now do the same to render the cylinder
     //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
     model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
     prog_lambert.setModelMatrix(model);
     //prog_lambert.draw(geom_cylinder);
-    //prog_lambert.draw(geom_cube);
+    prog_lambert.draw(geom_pipe);
 
 #endif
 
@@ -340,4 +364,83 @@ void MyGL::keyPressEvent(QKeyEvent *e)
 void MyGL::slot_ChosenPart(QTreeWidgetItem *n)
 {
     selected = (Node*) n;
+}
+
+void MyGL::SetTimer(){
+    timer = new QTimer;
+    timer->setInterval(1000);
+    timer->start();
+    connect(timer, SIGNAL(timeout()), this, SLOT(onTimerOut()));
+}
+
+void MyGL::setAnimation(Node *N, TranslateNode *T, RotateNode *R, ScaleNode *S){
+    AniNode = N;
+    AniTrans = T;
+    AniRot = R;
+    AniSca = S;
+    SetTimer();
+}
+
+void MyGL::onTimerOut(){
+   //Translation Animation
+    if((AniTrans->Transformation[3][0] - 0.1)>=0){
+        AniNode->Animation[3][0] = AniNode->Animation[3][0] + 0.1;
+        AniTrans->Transformation[3][0] = AniTrans->Transformation[3][0] - 0.1;
+    }
+    else{
+        AniNode->Animation[3][0] = AniNode->Animation[3][0] + AniTrans->Transformation[3][0];
+        AniTrans->Transformation[3][0] = 0;
+    }
+    if((AniTrans->Transformation[3][1] - 0.1)>=0){
+        AniNode->Animation[3][1] = AniNode->Animation[3][1] + 0.1;
+        AniTrans->Transformation[3][1] = AniTrans->Transformation[3][1] - 0.1;
+    }
+    else{
+        AniNode->Animation[3][1] = AniNode->Animation[3][1] + AniTrans->Transformation[3][1];
+        AniTrans->Transformation[3][1] = 0;
+    }
+    if((AniTrans->Transformation[3][2] - 0.1)>=0){
+        AniNode->Animation[3][2] = AniNode->Animation[3][2] + 0.1;
+        AniTrans->Transformation[3][2] = AniTrans->Transformation[3][2] - 0.1;
+    }
+    else{
+        AniNode->Animation[3][2] = AniNode->Animation[3][2] + AniTrans->Transformation[3][2];
+        AniTrans->Transformation[3][2] = 0;
+    }
+    //Scale Animation
+     if((AniSca->Transformation[0][0] - 0.1)>=1){
+         AniNode->Animation[0][0] = AniNode->Animation[0][0] + 0.1;
+         AniSca->Transformation[0][0] = AniSca->Transformation[0][0] - 0.1;
+     }
+     else{
+         AniNode->Animation[0][0] = AniNode->Animation[0][0] + AniSca->Transformation[0][0]-1;
+         AniSca->Transformation[0][0] = 1;
+     }
+     if((AniSca->Transformation[1][1] - 0.1)>=1){
+         AniNode->Animation[1][1] = AniNode->Animation[1][1] + 0.1;
+         AniSca->Transformation[1][1] = AniSca->Transformation[1][1] - 0.1;
+     }
+     else{
+         AniNode->Animation[1][1] = AniNode->Animation[1][1] + AniSca->Transformation[1][1]-1;
+         AniSca->Transformation[1][1] = 1;
+     }
+     if((AniSca->Transformation[2][2] - 0.1)>=1){
+         AniNode->Animation[2][2] = AniNode->Animation[2][2] + 0.1;
+         AniSca->Transformation[2][2] = AniSca->Transformation[2][2] - 0.1;
+     }
+     else{
+         AniNode->Animation[2][2] = AniNode->Animation[2][2] + AniSca->Transformation[2][2]-1;
+         AniSca->Transformation[2][2] = 1;
+     }
+     //Rotate Animation
+     if(AniRot->angle - 5 >= 0){
+         RotateNode *R = new RotateNode(5, 0, 0, 1);
+         AniNode->Animation_Rotation = AniNode->Animation_Rotation * R->Transformation;
+         RotateNode *F = new RotateNode(AniRot->angle - 5, 0, 0, 1);
+         AniRot = F;
+     }
+     else{
+         AniNode->Animation_Rotation = AniNode->Animation_Rotation * AniRot->Transformation;
+         AniRot->angle = 0;
+     }
 }

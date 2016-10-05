@@ -13,7 +13,9 @@ SOURCES += \
     $$PWD/la.cpp \
     $$PWD/drawable.cpp \
     $$PWD/scene/cube.cpp \
-    $$PWD/mytreewidget.cpp
+    $$PWD/mytreewidget.cpp \
+    $$PWD/scene/cone.cpp \
+    $$PWD/scene/pipe.cpp
 
 HEADERS += \
     $$PWD/la.h \
@@ -26,4 +28,6 @@ HEADERS += \
     $$PWD/scene/sphere.h \
     $$PWD/drawable.h \
     $$PWD/scene/cube.h \
-    $$PWD/mytreewidget.h
+    $$PWD/mytreewidget.h \
+    $$PWD/scene/cone.h \
+    $$PWD/scene/pipe.h

@@ -7,11 +7,13 @@
 #include <scene/cylinder.h>
 #include <scene/sphere.h>
 #include <scene/cube.h>
+#include <scene/cone.h>
+#include <scene/pipe.h>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <QTreeWidgetItem>
 #include <QString>
-
+#include <QTimer>
 //Node:
 class TranslateNode;
 class RotateNode;
@@ -27,6 +29,9 @@ public:
     glm::mat4 Transformation;
     Drawable *Geometry;
     std::vector<Node*> Children;
+    //Animation:
+    glm::mat4 Animation;
+    glm::mat4 Animation_Rotation = glm::mat4(1);
     Node();
     Node(const QString &name);
     Node(const QString &name, TranslateNode *trans, RotateNode *rot, ScaleNode *scale);
@@ -42,6 +47,7 @@ public:
 
 class RotateNode:public Node{
 public:
+    float angle;
     RotateNode();
     RotateNode(float angle, float x, float y, float z);
 
@@ -64,6 +70,8 @@ private:
     Cylinder geom_cylinder;// The instance of a unit cylinder we can use to render any cylinder
     Sphere geom_sphere;// The instance of a unit sphere we can use to render any sphere
     Cube geom_cube;
+    Cone geom_cone;
+    Pipe geom_pipe;
     ShaderProgram prog_lambert;// A shader program that uses lambertian reflection
     ShaderProgram prog_flat;// A shader program that uses "flat" reflection (no shadowing at all)
 
@@ -71,6 +79,14 @@ private:
                 // Don't worry too much about this. Just know it is necessary in order to render geometry.
     Node *Root;
     Node *selected;
+    QTimer *timer;
+
+//Animation:
+    TranslateNode *AniTrans;
+    RotateNode *AniRot;
+    ScaleNode *AniSca;
+    Node *AniNode;
+
 public:
     explicit MyGL(QWidget *parent = 0);
     ~MyGL();
@@ -81,12 +97,15 @@ public:
 
     void Traverse(Node *N, glm::mat4 T, ShaderProgram p, glm::vec4 origin_color);
 
+    void SetTimer();
+    void setAnimation(Node *N, TranslateNode *T, RotateNode *R, ScaleNode *S);
 protected:
     void keyPressEvent(QKeyEvent *e);
 signals:
     void sig_RootNode(QTreeWidgetItem*);
 public slots:
     void slot_ChosenPart(QTreeWidgetItem*);
+    void onTimerOut();
 
 };
 
