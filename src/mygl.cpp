@@ -276,6 +276,7 @@ void MyGL::initializeGL()
     // defined until you implement the Node classes.
     // This makes your geometry render green.
     prog_lambert.setGeometryColor(glm::vec4(0,1,0,1));
+    prog_flat.setGeometryColor(glm::vec4(0,1,0,1));
 
     // We have to have a VAO bound in OpenGL 3.2 Core. But if we're not
     // using multiple VAOs, we can just bind one once.
@@ -334,6 +335,7 @@ void MyGL::paintGL()
     TranslateNode *TT = new TranslateNode(-0.3,-0.3,0);
     model = model * RR->Transformation * TT->Transformation;
     prog_lambert.setModelMatrix(model);
+    prog_flat.setModelMatrix(model);
     //Draw the example sphere using our lambert shader
     prog_lambert.draw(geom_cone);
 
